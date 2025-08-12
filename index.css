@@ -1,0 +1,146 @@
+:root{
+  --bg:#006050;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --accent:#0f62fe;
+  --accent-2:#0b5ed7;
+  --success:#00703c;
+  --radius:12px;
+  --shadow: 0 8px 24px rgba(16,24,40,0.06);
+  --glass: rgba(255,255,255,0.85);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, #f7f9fc 0%, var(--bg) 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px;
+  color:#0f172a;
+}
+
+/* Page/card */
+.page{width:100%;max-width:720px}
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:28px;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(15,23,42,0.04);
+  transition:transform .28s ease, box-shadow .28s ease;
+}
+.card:hover{ transform: translateY(-4px); box-shadow: 0 16px 40px rgba(16,24,40,0.08); }
+
+.card-header h1{ margin:0; font-size:1.25rem; letter-spacing:-0.2px; }
+.subtitle{ margin:6px 0 18px; color:var(--muted); font-size:0.92rem }
+
+/* Form layout */
+.form{ display:flex; flex-direction:column; gap:12px; }
+.field{ display:flex; flex-direction:column; gap:8px; }
+.field label{ font-size:0.85rem; color:var(--muted) }
+input[type="number"], select{
+  height:44px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid rgba(15,23,42,0.06);
+  font-size:1rem;
+  background:transparent;
+  transition: box-shadow .18s ease, border-color .18s ease;
+}
+input:focus, select:focus{
+  outline:none;
+  border-color:var(--accent-2);
+  box-shadow: 0 6px 20px rgba(15,98,255,0.06);
+}
+
+/* row two-column */
+.row{ display:flex; gap:12px; }
+.row .field{ flex:1 }
+
+/* buttons */
+.controls{ display:flex; gap:10px; margin-top:6px }
+.btn{
+  height:44px;
+  padding:0 14px;
+  border-radius:10px;
+  border:1px solid transparent;
+  font-weight:600;
+  cursor:pointer;
+  background:transparent;
+  transition: transform .14s ease, box-shadow .14s ease;
+}
+.btn:active{ transform: translateY(1px) }
+.primary{
+  background: linear-gradient(180deg,var(--accent) 0%, var(--accent-2) 100%);
+  color:white;
+  box-shadow: 0 6px 18px rgba(15,98,255,0.12);
+  border-color: rgba(11,94,215,0.12);
+}
+.subtle{
+  background:transparent;
+  color:var(--muted);
+  border:1px solid rgba(15,23,42,0.06);
+}
+
+/* result */
+.result{
+  margin-top:16px;
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  padding:12px;
+  border-radius:10px;
+  background: linear-gradient(180deg, rgba(15,98,255,0.04), rgba(15,98,255,0.02));
+  border:1px solid rgba(15,98,255,0.06);
+  transition: opacity .32s ease, transform .32s ease;
+}
+.result[hidden]{ opacity:0; transform: translateY(6px); height:0; padding:0; overflow:hidden; }
+.result-value{ font-size:1.4rem; font-weight:700; color:#031024 }
+.result-unit{ color:var(--muted); font-size:0.95rem; }
+
+/* footer */
+.card-foot{ margin-top:14px; color:var(--muted); font-size:0.82rem }
+
+/* responsive */
+@media (max-width:520px){
+  .card{ padding:20px; }
+  .row{ flex-direction:column; }
+}
+
+
+/* Darker text and borders */
+input, select, button, label {
+  color: #1a1a1a; /* Darker text */
+  font-weight: 500;
+}
+
+input, select {
+  border: 1.5px solid #c5c5c5; /* Darker border */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, select:focus {
+  border-color: #888; /* Darker on focus */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+  outline: none;
+}
+
+label {
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Button tweak for better contrast */
+button {
+  font-weight: 600;
+}
+
+/* Slight background tweak for inputs */
+input::placeholder {
+  color: #666;
+}

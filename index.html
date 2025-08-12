@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Temperature Converter — Clean UI</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="card" aria-labelledby="title">
+      <div class="card-header">
+        <h1 id="title">Temperature Converter</h1>
+        <p class="subtitle">Convert between Celsius, Fahrenheit &amp; Kelvin</p>
+      </div>
+
+      <form id="converter" class="form" autocomplete="off" role="form">
+        <div class="field">
+          <label for="temperature">Temperature</label>
+          <input id="temperature" name="temperature" type="number" inputmode="decimal" placeholder="e.g. 25" />
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="from">From</label>
+            <select id="from" name="from">
+              <option value="C">Celsius (°C)</option>
+              <option value="F">Fahrenheit (°F)</option>
+              <option value="K">Kelvin (K)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="to">To</label>
+            <select id="to" name="to">
+              <option value="C">Celsius (°C)</option>
+              <option value="F">Fahrenheit (°F)</option>
+              <option value="K">Kelvin (K)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button type="submit" id="convertBtn" class="btn primary">Convert</button>
+          <button type="button" id="swapBtn" class="btn subtle" title="Swap units">⇄</button>
+        </div>
+
+        <div id="result" class="result" aria-live="polite" hidden>
+          <div class="result-value" id="resultValue">--</div>
+          <div class="result-unit" id="resultUnit"></div>
+        </div>
+      </form>
+
+      <footer class="card-foot">
+        <small>Built with a C++ CGI backend. Accessible, responsive & minimal motion.</small>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+  // Query selectors: minimal global footprint
+  const els = {
+    form: document.getElementById('converter'),
+    temp: document.getElementById('temperature'),
+    from: document.getElementById('from'),
+    to: document.getElementById('to'),
+    result: document.getElementById('result'),
+    resultValue: document.getElementById('resultValue'),
+    resultUnit: document.getElementById('resultUnit'),
+    swapBtn: document.getElementById('swapBtn')
+  };
+
+  function showResult(value, unit) {
+    els.resultValue.textContent = value;
+    els.resultUnit.textContent = unit;
+    els.result.hidden = false;
+    els.result.animate(
+      [
+        { transform: 'translateY(6px)', opacity: 0 },
+        { transform: 'translateY(0)', opacity: 1 }
+      ],
+      { duration: 280, easing: 'cubic-bezier(.2,.9,.2,1)' }
+    );
+  }
+
+  function formatNumber(n) {
+    const num = Number(n);
+    if (Number.isNaN(num)) return '—';
+    return (Math.round(num * 100) / 100).toString(); // 2 decimals
+  }
+
+  // Local fallback conversion if backend fails
+  function localConvert(temp, from, to) {
+    if (from === to) return temp;
+    if (from === 'C' && to === 'F') return temp * 9 / 5 + 32;
+    if (from === 'F' && to === 'C') return (temp - 32) * 5 / 9;
+    if (from === 'C' && to === 'K') return temp + 273.15;
+    if (from === 'K' && to === 'C') return temp - 273.15;
+    if (from === 'F' && to === 'K') return (temp - 32) * 5 / 9 + 273.15;
+    if (from === 'K' && to === 'F') return (temp - 273.15) * 9 / 5 + 32;
+    return temp;
+  }
+
+  // Swap units
+  els.swapBtn.addEventListener('click', () => {
+    const currentFrom = els.from.value;
+    els.from.value = els.to.value;
+    els.to.value = currentFrom;
+  });
+
+  // Form submit
+  els.form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const raw = els.temp.value.trim();
+    if (!raw) {
+      els.temp.focus();
+      return;
+    }
+
+    const temp = Number(raw);
+    if (Number.isNaN(temp)) {
+      alert('Please enter a valid number.');
+      return;
+    }
+
+    const from = els.from.value;
+    const to = els.to.value;
+
+    const btn = document.getElementById('convertBtn');
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+
+    try {
+      const resp = await fetch(`/cgi-bin/convert.cgi?temp=${encodeURIComponent(temp)}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+      if (!resp.ok) throw new Error('Backend error');
+      const text = await resp.text();
+      const parts = text.trim().split(/\s+/);
+      const value = formatNumber(parts[0]);
+      const unit = parts.slice(1).join(' ') || (to === 'C' ? '°C' : to === 'F' ? '°F' : 'K');
+      showResult(value, unit);
+    } catch (err) {
+      console.warn('Backend not available — using local conversion.', err);
+      const converted = localConvert(temp, from, to);
+      const unit = to === 'C' ? '°C' : to === 'F' ? '°F' : 'K';
+      showResult(formatNumber(converted), unit);
+    } finally {
+      btn.disabled = false;
+      btn.style.opacity = '';
+    }
+  });
+  fetch(`convert.php?temp=100&from=C&to=F`)
+  .then(res => res.text())
+  .then(data => console.log(data));
+
+</script>
